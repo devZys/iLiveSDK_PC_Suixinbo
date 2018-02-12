@@ -2,6 +2,12 @@
 #include "Live.h"
 #include "json/json.h"
 #include "MixStreamHelper.h"
+#include <opencv2/highgui/highgui.hpp>  
+#include <opencv2/imgproc/imgproc.hpp>  
+#include <opencv2/core/core.hpp>  
+
+using namespace cv;
+
 
 //上下翻转RGB帧
 static bool reverseRGBFrame(LiveVideoFrame& frame)
@@ -81,6 +87,7 @@ Live::Live( QWidget * parent /*= 0*/, Qt::WindowFlags f /*= 0*/ )
 	m_bPushing = false;
 
 	connect( m_ui.btnOpenCamera, SIGNAL(clicked()), this, SLOT(OnBtnOpenCamera()) );
+	connect(m_ui.btnCloseCamera_2, SIGNAL(clicked()), this, SLOT(OnBtnOpenCamera()));
 	connect( m_ui.btnCloseCamera, SIGNAL(clicked()), this, SLOT(OnBtnCloseCamera()) );
 	connect( m_ui.btnOpenMic, SIGNAL(clicked()), this, SLOT(OnBtnOpenMic()) );
 	connect( m_ui.btnCloseMic, SIGNAL(clicked()), this, SLOT(OnBtnCloseMic()) );
@@ -531,6 +538,21 @@ void Live::OnBtnOpenCamera()
 	int ndx = m_ui.cbCamera->currentIndex();
 	GetILive()->openCamera(m_cameraList[ndx].first.c_str());
 }
+void Live::OnBtnOpenCamera2()
+{
+	if (m_cameraList.size() == 0)
+	{
+		ShowErrorTips(FromBits("无可用的摄像头."), this);
+		return;
+	}
+	m_ui.btnOpenCamera_2->setEnabled(false);
+	int ndx = m_ui.cbCamera_2->currentIndex();
+	
+
+
+
+	m_pFillFrameTimer->start(66); // 帧率1000/66约等于15
+}
 
 void Live::OnBtnCloseCamera()
 {
@@ -538,6 +560,11 @@ void Live::OnBtnCloseCamera()
 	GetILive()->closeCamera();
 }
 
+void Live::OnBtnCloseCamera2()
+{
+	m_ui.btnCloseCamera_2->setEnabled(false);
+
+}
 
 void Live::OnBtnOpenMic()
 {
@@ -834,53 +861,53 @@ void Live::OnHeartBeatTimer()
 
 void Live::OnFillFrameTimer()
 {
-	////////////////////////////////////////////////
-	//这里演示自定义采集，读取一张本地图片，每一帧都传入此图片作为输入数据
-	HBITMAP hbitmap = (HBITMAP)LoadImageA(NULL, "ExternalCapture.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION );
-	if (!hbitmap)
-	{
-		return;
-	}
-
-	BITMAP bitmap;
-	GetObject(hbitmap, sizeof(BITMAP), &bitmap );
-
-	/////////////////输出文字到图片上start////////////////
-	HDC hDC = GetDC( (HWND)(this->winId()) );
-	HDC hMemDC = CreateCompatibleDC(hDC);
-	SelectObject(hMemDC, hbitmap);
-
-	char chFont[20];
-	HFONT hfont = CreateFontA( 100, 0, 0, 0, 400, 0, 0, 0, GB2312_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,	DEFAULT_QUALITY, DEFAULT_PITCH|FF_DONTCARE, chFont);
-	
-	SelectObject(hMemDC, hfont);
-	TextOutA( hMemDC, 0, 0, "这是自定义采集的画面", strlen("这是自定义采集的画面") );
-
-	DeleteObject(hfont);
-	DeleteObject(hMemDC);
-	ReleaseDC( (HWND)(this->winId()), hDC );
-	/////////////////输出文字到图片上end////////////////
-
-	LiveVideoFrame frame;
-	frame.data = (uint8*)bitmap.bmBits;	
-	frame.dataSize = bitmap.bmWidth * bitmap.bmHeight * 3;
-	frame.desc.colorFormat = COLOR_FORMAT_RGB24;
-	frame.desc.width = bitmap.bmWidth;
-	frame.desc.height = bitmap.bmHeight;
-	frame.desc.rotate = 0;
-	reverseRGBFrame(frame);//由于BMP图片的数据是上下颠倒保存的，这里需要上下翻转下
-
-	int nRet = GetILive()->fillExternalCaptureFrame(frame);
-	if (nRet!=NO_ERR)
-	{
-		m_pFillFrameTimer->stop();
-		if (nRet != NO_ERR)
-		{
-			ShowCodeErrorTips( nRet, FromBits("自定义采集视频输入出错"), this );
-		}
-	}
-
-	DeleteObject(hbitmap);
+// 	////////////////////////////////////////////////
+// 	//这里演示自定义采集，读取一张本地图片，每一帧都传入此图片作为输入数据
+// 	HBITMAP hbitmap = (HBITMAP)LoadImageA(NULL, "ExternalCapture.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION );
+// 	if (!hbitmap)
+// 	{
+// 		return;
+// 	}
+// 
+// 	BITMAP bitmap;
+// 	GetObject(hbitmap, sizeof(BITMAP), &bitmap );
+// 
+// 	/////////////////输出文字到图片上start////////////////
+// 	HDC hDC = GetDC( (HWND)(this->winId()) );
+// 	HDC hMemDC = CreateCompatibleDC(hDC);
+// 	SelectObject(hMemDC, hbitmap);
+// 
+// 	char chFont[20];
+// 	HFONT hfont = CreateFontA( 100, 0, 0, 0, 400, 0, 0, 0, GB2312_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,	DEFAULT_QUALITY, DEFAULT_PITCH|FF_DONTCARE, chFont);
+// 	
+// 	SelectObject(hMemDC, hfont);
+// 	TextOutA( hMemDC, 0, 0, "这是自定义采集的画面", strlen("这是自定义采集的画面") );
+// 
+// 	DeleteObject(hfont);
+// 	DeleteObject(hMemDC);
+// 	ReleaseDC( (HWND)(this->winId()), hDC );
+// 	/////////////////输出文字到图片上end////////////////
+// 
+// 	LiveVideoFrame frame;
+// 	frame.data = (uint8*)bitmap.bmBits;	
+// 	frame.dataSize = bitmap.bmWidth * bitmap.bmHeight * 3;
+// 	frame.desc.colorFormat = COLOR_FORMAT_RGB24;
+// 	frame.desc.width = bitmap.bmWidth;
+// 	frame.desc.height = bitmap.bmHeight;
+// 	frame.desc.rotate = 0;
+// 	reverseRGBFrame(frame);//由于BMP图片的数据是上下颠倒保存的，这里需要上下翻转下
+// 
+// 	int nRet = GetILive()->fillExternalCaptureFrame(frame);
+// 	if (nRet!=NO_ERR)
+// 	{
+// 		m_pFillFrameTimer->stop();
+// 		if (nRet != NO_ERR)
+// 		{
+// 			ShowCodeErrorTips( nRet, FromBits("自定义采集视频输入出错"), this );
+// 		}
+// 	}
+// 
+// 	DeleteObject(hbitmap);
 }
 
 void Live::OnPlayMediaFileTimer()

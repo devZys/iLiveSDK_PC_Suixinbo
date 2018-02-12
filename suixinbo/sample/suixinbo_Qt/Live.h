@@ -5,6 +5,8 @@
 #include "VideoRender.h"
 #include "WndList.h"
 
+
+
 #define MaxShowMembers 50
 
 enum E_RoomUserType
@@ -50,7 +52,9 @@ public:
 
 private slots:
 	void OnBtnOpenCamera();
+	void OnBtnOpenCamera2();
 	void OnBtnCloseCamera();
+	void OnBtnCloseCamera2();
 	void OnBtnOpenMic();
 	void OnBtnCloseMic();
 	void OnBtnOpenPlayer();
@@ -153,7 +157,6 @@ private:
 
 	void exitInteract();//连麦观众执行主播发出的断线命令
 	void OnExitInteract();
-	void onMixTextClick(const QUrl &url);
 
 	void sendQuitRoom();//主播发送退出房间信令
 
@@ -239,6 +242,7 @@ private:
 
 	QString	m_szMsgs;
 	int mRoomId;
+
 };
 
 #endif//Live_h_
