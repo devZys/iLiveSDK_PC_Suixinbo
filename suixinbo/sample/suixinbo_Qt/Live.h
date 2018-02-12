@@ -4,8 +4,9 @@
 #include "ui_Live.h"
 #include "VideoRender.h"
 #include "WndList.h"
-
-
+#include <opencv2/highgui/highgui.hpp>  
+#include <opencv2/imgproc/imgproc.hpp>  
+#include <opencv2/core/core.hpp>  
 
 #define MaxShowMembers 50
 
@@ -34,9 +35,9 @@ public:
 	void ChangeRoomUserType();
 
 	void dealMessage(const Message& message);
-	void parseCusMessage(const std::string& sender,std::string msg);
+	void parseCusMessage(const std::string& sender, std::string msg);
 	void dealCusMessage(const std::string& sender, int nUserAction, QString szActionParam);
-	
+
 	void StartTimer();
 	void stopTimer();
 	void onMixStream(std::string streamCode);
@@ -46,11 +47,11 @@ public:
 	static void OnDeviceDetect(void* data);
 	static void OnLocalVideo(const LiveVideoFrame* video_frame, void* custom_data);
 	static void OnRemoteVideo(const LiveVideoFrame* video_frame, void* custom_data);
-	static void OnMessage( const Message& msg, void* data );
+	static void OnMessage(const Message& msg, void* data);
 	static void OnDeviceOperation(E_DeviceOperationType oper, int retCode, void* data);
 	static void OnQualityParamCallback(const iLiveRoomStatParam& param, void* data);
 
-private slots:
+	private slots:
 	void OnBtnOpenCamera();
 	void OnBtnOpenCamera2();
 	void OnBtnCloseCamera();
@@ -88,7 +89,7 @@ private slots:
 	void OnPlayMediaFileTimer();
 	void OnMemberListMenu(QPoint point);
 	void OnActInviteInteract();
-	void OnActCancelInteract();	
+	void OnActCancelInteract();
 	void on_btnMix_clicked();
 
 
@@ -160,7 +161,7 @@ private:
 
 	void sendQuitRoom();//主播发送退出房间信令
 
-	//随心播服务器请求相关函数
+						//随心播服务器请求相关函数
 	void sxbCreatorQuitRoom();
 	void sxbWatcherOrJoinerQuitRoom();
 	void sxbHeartBeat();
@@ -196,10 +197,10 @@ private:
 
 	static void OnStopPushStreamSuc(void* data);
 	static void OnStopPushStreamErr(int code, const char *desc, void* data);
-	
+
 private:
 	Ui::Live		m_ui;
-	
+
 	E_RoomUserType  m_userType;
 
 	VideoRender*	m_pLocalCameraRender;
@@ -215,7 +216,7 @@ private:
 	QTimer*			m_pTimer;
 	QTimer*			m_pFillFrameTimer;
 	QTimer*			m_pPlayMediaFileTimer;
-	
+
 	int				m_nCurSelectedMember;
 	QMenu*			m_pMenuInviteInteract;
 	QMenu*			m_pMenuCancelInteract;
@@ -243,6 +244,8 @@ private:
 	QString	m_szMsgs;
 	int mRoomId;
 
+
+	cv::VideoCapture* m_assistVideo;
 };
 
 #endif//Live_h_
