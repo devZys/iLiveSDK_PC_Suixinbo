@@ -51,8 +51,6 @@ public:
 private slots:
 	void OnBtnOpenCamera();
 	void OnBtnCloseCamera();
-	void OnBtnOpenExternalCapture();
-	void OnBtnCloseExternalCapture();
 	void OnBtnOpenMic();
 	void OnBtnCloseMic();
 	void OnBtnOpenPlayer();
@@ -66,8 +64,6 @@ private slots:
 	void OnBtnSendGroupMsg();
 	void OnBtnStartRecord();
 	void OnBtnStopRecord();
-	void OnBtnStartPushStream();
-	void OnBtnStopPushStream();
 	void OnBtnPraise();
 	void OnBtnSelectMediaFile();
 	void OnBtnPlayMediaFile();
@@ -109,14 +105,12 @@ private:
 
 	void updateCameraGB();
 	void updatePlayerGB();
-	void updateExternalCaptureGB();
+
 	void updateMicGB();
 	void updateScreenShareGB();
 	void updateSystemVoiceInputGB();
 	void updateMediaFilePlayGB();
 	void updateRecordGB();
-	void updatePushStreamGB();
-	
 	void updatePlayMediaFileProgress();
 	void doStartPlayMediaFile();
 	void doPausePlayMediaFile();
@@ -124,7 +118,6 @@ private:
 	void doStopPlayMediaFile();
 
 	void doAutoStopRecord();
-	void doAutoStopPushStream();
 
 	//设备操作回调
 	void OnOpenCameraCB(const int& retCode);

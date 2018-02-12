@@ -82,7 +82,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>190</y>
+     <y>340</y>
      <width>191</width>
      <height>211</height>
     </rect>
@@ -444,7 +444,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>20</y>
       <width>210</width>
       <height>150</height>
      </rect>
@@ -665,93 +665,6 @@
     <number>999999999</number>
    </property>
   </widget>
-  <widget class="QGroupBox" name="pushStreamGB">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>480</y>
-     <width>331</width>
-     <height>161</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>旁路推流</string>
-   </property>
-   <widget class="QPushButton" name="btnStartPushStream">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>81</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>开始推流</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnStopPushStream">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>20</y>
-      <width>81</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>停止推流</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="cbPushDataType">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>70</y>
-      <width>171</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="cbPushEncodeType">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>120</y>
-      <width>171</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="tePushStreamUrl">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>20</y>
-      <width>131</width>
-      <height>131</height>
-     </rect>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
-  </widget>
   <widget class="QGroupBox" name="recordGB">
    <property name="enabled">
     <bool>true</bool>
@@ -759,7 +672,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>410</y>
+     <y>560</y>
      <width>331</width>
      <height>65</height>
     </rect>
@@ -813,45 +726,6 @@
     </property>
     <property name="currentText">
      <string/>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="praiseGB">
-   <property name="geometry">
-    <rect>
-     <x>490</x>
-     <y>430</y>
-     <width>231</width>
-     <height>125</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>点赞</string>
-   </property>
-   <widget class="QPushButton" name="btnPraise">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>55</y>
-      <width>121</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>为主播点赞</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="lbPraiseNum">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>25</y>
-      <width>121</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>点赞数: 0</string>
     </property>
    </widget>
   </widget>
@@ -961,48 +835,6 @@
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="externalCaptureGB">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>120</y>
-     <width>191</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>自定义采集</string>
-   </property>
-   <widget class="QPushButton" name="btnOpenExternalCapture">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>81</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>打开</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnCloseExternalCapture">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>20</y>
-      <width>81</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>关闭</string>
     </property>
    </widget>
   </widget>
@@ -1268,32 +1100,6 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QGroupBox" name="cameraGB_2">
-   <property name="geometry">
-    <rect>
-     <x>970</x>
-     <y>10</y>
-     <width>231</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>混流</string>
-   </property>
-   <widget class="QPushButton" name="btnMix">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>211</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>开始混流</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="QLabel" name="lbInviteTip">
    <property name="geometry">
     <rect>
@@ -1312,6 +1118,64 @@
    <property name="text">
     <string>主播用鼠标右键邀请上麦</string>
    </property>
+  </widget>
+  <widget class="QGroupBox" name="cameraGB_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>120</y>
+     <width>191</width>
+     <height>101</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>辅路摄像头</string>
+   </property>
+   <widget class="QPushButton" name="btnCloseCamera_2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>60</y>
+      <width>79</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>关闭摄像头</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnOpenCamera_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>打开摄像头</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cbCamera_2">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>168</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="currentText">
+     <string/>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>

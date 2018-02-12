@@ -82,8 +82,6 @@ Live::Live( QWidget * parent /*= 0*/, Qt::WindowFlags f /*= 0*/ )
 
 	connect( m_ui.btnOpenCamera, SIGNAL(clicked()), this, SLOT(OnBtnOpenCamera()) );
 	connect( m_ui.btnCloseCamera, SIGNAL(clicked()), this, SLOT(OnBtnCloseCamera()) );
-	connect( m_ui.btnOpenExternalCapture, SIGNAL(clicked()), this, SLOT(OnBtnOpenExternalCapture()) );
-	connect( m_ui.btnCloseExternalCapture, SIGNAL(clicked()), this, SLOT(OnBtnCloseExternalCapture()) );
 	connect( m_ui.btnOpenMic, SIGNAL(clicked()), this, SLOT(OnBtnOpenMic()) );
 	connect( m_ui.btnCloseMic, SIGNAL(clicked()), this, SLOT(OnBtnCloseMic()) );
 	connect( m_ui.btnOpenPlayer, SIGNAL(clicked()), this, SLOT(OnBtnOpenPlayer()) );
@@ -97,9 +95,6 @@ Live::Live( QWidget * parent /*= 0*/, Qt::WindowFlags f /*= 0*/ )
 	connect( m_ui.btnSendGroupMsg, SIGNAL(clicked()), this, SLOT(OnBtnSendGroupMsg()) );
 	connect( m_ui.btnStartRecord, SIGNAL(clicked()), this, SLOT(OnBtnStartRecord()) );
 	connect( m_ui.btnStopRecord, SIGNAL(clicked()), this, SLOT(OnBtnStopRecord()) );
-	connect( m_ui.btnStartPushStream, SIGNAL(clicked()), this, SLOT(OnBtnStartPushStream()) );
-	connect( m_ui.btnStopPushStream, SIGNAL(clicked()), this, SLOT(OnBtnStopPushStream()) );
-	connect( m_ui.btnPraise, SIGNAL(clicked()), this, SLOT(OnBtnPraise()) );
 	connect( m_ui.btnSelectMediaFile, SIGNAL(clicked()), this, SLOT(OnBtnSelectMediaFile()) );
 	connect( m_ui.btnPlayMediaFile, SIGNAL(clicked()), this, SLOT(OnBtnPlayMediaFile()) );
 	connect( m_ui.btnStopMediaFile, SIGNAL(clicked()), this, SLOT(OnBtnStopMediaFile()) );
@@ -134,28 +129,23 @@ void Live::setRoomUserType( E_RoomUserType userType )
 	updateMsgs();
 	updateCameraGB();
 	updatePlayerGB();
-	updateExternalCaptureGB();
+	
 	updateMicGB();
 	updateScreenShareGB();
 	updateSystemVoiceInputGB();
 	updateMediaFilePlayGB();
 	updateRecordGB();
-	updatePushStreamGB();
 	switch(m_userType)
 	{
 	case E_RoomUserCreator:
 		{
 			this->setWindowTitle( QString::fromLocal8Bit("主播") );
 			m_ui.cameraGB->setVisible(true);
-			m_ui.externalCaptureGB->setVisible(true);
 			m_ui.microphoneGB->setVisible(true);
 			m_ui.screenShareGB->setVisible(true);
 			m_ui.SystemVoiceInputGB->setVisible(true);
 			m_ui.MediaFileGB->setVisible(true);
 			m_ui.recordGB->setVisible(true);
-			m_ui.pushStreamGB->setVisible(true);
-			m_ui.lbPraiseNum->setVisible(true);
-			m_ui.btnPraise->setVisible(false);
 			if ( m_ui.cbCamera->count() > 0 ) OnBtnOpenCamera();//主播创建房间后，自动打开摄像头
 			break;
 		}
@@ -163,30 +153,25 @@ void Live::setRoomUserType( E_RoomUserType userType )
 		{
 			this->setWindowTitle( QString::fromLocal8Bit("连麦者") );
 			m_ui.cameraGB->setVisible(true);
-			m_ui.externalCaptureGB->setVisible(true);
+
 			m_ui.microphoneGB->setVisible(true);
 			m_ui.screenShareGB->setVisible(true);
 			m_ui.SystemVoiceInputGB->setVisible(true);
 			m_ui.MediaFileGB->setVisible(true);
 			m_ui.recordGB->setVisible(false);
-			m_ui.pushStreamGB->setVisible(false);
-			m_ui.lbPraiseNum->setVisible(false);
-			m_ui.btnPraise->setVisible(true);
 			break;
 		}
 	case E_RoomUserWatcher:
 		{
 			this->setWindowTitle( QString::fromLocal8Bit("观众") );
 			m_ui.cameraGB->setVisible(false);
-			m_ui.externalCaptureGB->setVisible(false);
+
 			m_ui.microphoneGB->setVisible(false);
 			m_ui.screenShareGB->setVisible(false);
 			m_ui.SystemVoiceInputGB->setVisible(false);
 			m_ui.MediaFileGB->setVisible(false);
 			m_ui.recordGB->setVisible(false);
-			m_ui.pushStreamGB->setVisible(false);
-			m_ui.lbPraiseNum->setVisible(false);
-			m_ui.btnPraise->setVisible(true);
+
 			break;
 		}
 	}
@@ -326,16 +311,6 @@ void Live::dealCusMessage( const std::string& sender, int nUserAction, QString s
 				close();
 				ShowTips( FromBits("主播退出房间"), FromBits("主播已经退出房间."), g_pMainWindow );
 			}
-			break;
-		}
-	case AVIMCMD_Praise:
-		{
-			if (m_userType==E_RoomUserCreator)
-			{
-				g_pMainWindow->increasePraise();
-				m_ui.lbPraiseNum->setText( FromBits("点赞数: ")+QString::number(g_pMainWindow->getCurRoomInfo().info.thumbup) );
-			}
-			addMsgLab( szActionParam+FromBits("点赞+1") );
 			break;
 		}
 	default:
@@ -563,17 +538,6 @@ void Live::OnBtnCloseCamera()
 	GetILive()->closeCamera();
 }
 
-void Live::OnBtnOpenExternalCapture()
-{
-	m_ui.btnOpenExternalCapture->setEnabled(false);
-	GetILive()->openExternalCapture();
-}
-
-void Live::OnBtnCloseExternalCapture()
-{
-	m_ui.btnCloseExternalCapture->setEnabled(false);
-	GetILive()->closeExternalCapture();
-}
 
 void Live::OnBtnOpenMic()
 {
@@ -723,19 +687,7 @@ void Live::OnBtnStopRecord()
 	GetILive()->stopRecord( recordDataType, OnStopRecordSuc, OnStopRecordVideoErr, this);
 }
 
-void Live::OnBtnStartPushStream()
-{
-	m_pushOpt.pushDataType = (E_PushDataType)m_ui.cbPushDataType->itemData( m_ui.cbPushDataType->currentIndex() ).value<int>();
-	m_pushOpt.encode = (E_iLiveStreamEncode)m_ui.cbPushEncodeType->itemData( m_ui.cbPushEncodeType->currentIndex() ).value<int>();
-	m_pushOpt.recordFileType = RecordFile_NONE;
-	GetILive()->startPushStream( m_pushOpt, OnStartPushStreamSuc, OnStartPushStreamErr, this );
-}
 
-void Live::OnBtnStopPushStream()
-{
-	E_PushDataType pushDataType = (E_PushDataType)m_ui.cbPushDataType->itemData( m_ui.cbPushDataType->currentIndex() ).value<int>();
-	GetILive()->stopPushStream(m_channelId, pushDataType, OnStopPushStreamSuc, OnStopPushStreamErr, this);
-}
 
 void Live::OnBtnPraise()
 {
@@ -1131,29 +1083,6 @@ void Live::updatePlayerGB()
 	m_ui.hsPlayerVol->blockSignals(false);
 }
 
-void Live::updateExternalCaptureGB()
-{
-	if ( GetILive()->getCurCameraState() )
-	{
-		m_ui.externalCaptureGB->setEnabled( false );
-	}
-	else
-	{
-		m_ui.externalCaptureGB->setEnabled( true );
-	}
-
-	if ( GetILive()->getExternalCaptureState() )
-	{
-		m_ui.btnOpenExternalCapture->setEnabled(false);
-		m_ui.btnCloseExternalCapture->setEnabled(true);
-	}
-	else
-	{
-		m_ui.btnOpenExternalCapture->setEnabled(true);
-		m_ui.btnCloseExternalCapture->setEnabled(false);
-	}
-}
-
 void Live::updateMicGB()
 {
 	m_ui.sbMicVol->blockSignals(true);
@@ -1360,59 +1289,6 @@ void Live::updateRecordGB()
 	m_ui.cbRecordDataType->setCurrentIndex( nRecordDataTypeIndex );
 }
 
-void Live::updatePushStreamGB()
-{
-	int nPushDataTypeIndex = m_ui.cbPushDataType->currentIndex();
-	int nPushEncodeTypeIndex = m_ui.cbPushEncodeType->currentIndex();
-	m_ui.cbPushDataType->clear();
-	m_ui.cbPushEncodeType->clear();
-	m_ui.tePushStreamUrl->setPlainText("");
-
-	if ( (!GetILive()->getCurCameraState()) && (!GetILive()->getExternalCaptureState()) 
-		&& (!GetILive()->getScreenShareState()) && (!GetILive()->getPlayMediaFileState()) )
-	{
-		m_ui.pushStreamGB->setEnabled(false);
-		return;
-	}
-
-	m_ui.pushStreamGB->setEnabled(true);
-	if( m_bPushing )
-	{
-		m_ui.btnStartPushStream->setEnabled(false);
-		m_ui.btnStopPushStream->setEnabled(true);
-		m_ui.cbPushDataType->setEnabled(false);
-		m_ui.cbPushEncodeType->setEnabled(false);
-		QString szUrl;
-		for (std::list<LiveUrl>::iterator iter = m_pushUrls.begin(); iter != m_pushUrls.end(); ++iter)
-		{
-			szUrl += QString::fromStdString( iter->url.c_str() ) + "\n";
-		}
-		m_ui.tePushStreamUrl->setPlainText(szUrl);
-	}
-	else
-	{
-		m_ui.btnStartPushStream->setEnabled(true);
-		m_ui.btnStopPushStream->setEnabled(false);
-		m_ui.cbPushDataType->setEnabled(true);
-		m_ui.cbPushEncodeType->setEnabled(true);
-		m_ui.tePushStreamUrl->setPlainText("");
-	}
-
-	if ( GetILive()->getCurCameraState() || GetILive()->getExternalCaptureState() )
-	{
-		m_ui.cbPushDataType->addItem( FromBits("主路(摄像头/自定义采集)"), QVariant(E_PushCamera) );
-	}
-	if ( GetILive()->getScreenShareState() || GetILive()->getPlayMediaFileState() )
-	{
-		m_ui.cbPushDataType->addItem( FromBits("辅路(屏幕分享/文件播放)"), QVariant(E_PushScreen) );
-	}
-	m_ui.cbPushEncodeType->addItem(FromBits("HLS"), QVariant(HLS) );
-	m_ui.cbPushEncodeType->addItem(FromBits("RTMP"),QVariant(RTMP) );
-	nPushDataTypeIndex = iliveMin( m_ui.cbPushDataType->count()-1, iliveMax(0, nPushDataTypeIndex) );
-	nPushEncodeTypeIndex = iliveMin( m_ui.cbPushEncodeType->count()-1, iliveMax(0, nPushEncodeTypeIndex) );
-	m_ui.cbPushDataType->setCurrentIndex( nPushDataTypeIndex );
-	m_ui.cbPushEncodeType->setCurrentIndex( nPushEncodeTypeIndex );
-}
 
 void Live::updatePlayMediaFileProgress()
 {
@@ -1519,44 +1395,13 @@ void Live::doAutoStopRecord()
 	}
 }
 
-void Live::doAutoStopPushStream()
-{
-	if ( m_bPushing )
-	{
-		int nPushDataTypeIndex = m_ui.cbPushDataType->currentIndex();
-		E_PushDataType eSelectedType = (E_PushDataType)m_ui.cbPushDataType->itemData(nPushDataTypeIndex).value<int>();
-		switch(eSelectedType)
-		{
-		case E_PushCamera:
-			{
-				if ( (!GetILive()->getCurCameraState()) && (!GetILive()->getExternalCaptureState()) )
-				{
-					OnBtnStopPushStream();
-				}
-				break;
-			}
-		case E_PushScreen:
-			{
-				if ( (!GetILive()->getScreenShareState()) && (!GetILive()->getPlayMediaFileState()) )
-				{
-					OnBtnStopPushStream();
-				}
-				break;
-			}
-		}
-	}
-	else
-	{
-		updatePushStreamGB();
-	}
-}
 
 void Live::OnOpenCameraCB( const int& retCode )
 {
 	updateCameraGB();
-	updateExternalCaptureGB();
+
 	updateRecordGB();
-	updatePushStreamGB();
+
 	if (retCode == NO_ERR)
 	{
 		m_ui.SkinGB->setVisible(true);
@@ -1570,9 +1415,9 @@ void Live::OnOpenCameraCB( const int& retCode )
 void Live::OnCloseCameraCB( const int& retCode )
 {
 	updateCameraGB();
-	updateExternalCaptureGB();
+
 	doAutoStopRecord();
-	doAutoStopPushStream();
+	
 	if (retCode == NO_ERR)
 	{
 		m_ui.SkinGB->setVisible(false);
@@ -1586,10 +1431,10 @@ void Live::OnCloseCameraCB( const int& retCode )
 
 void Live::OnOpenExternalCaptureCB( const int& retCode )
 {
-	updateExternalCaptureGB();
+	
 	updateCameraGB();
 	updateRecordGB();
-	updatePushStreamGB();
+	
 	if (retCode == NO_ERR)
 	{
 		m_pFillFrameTimer->start(66); // 帧率1000/66约等于15
@@ -1602,10 +1447,10 @@ void Live::OnOpenExternalCaptureCB( const int& retCode )
 
 void Live::OnCloseExternalCaptureCB( const int& retCode )
 {
-	updateExternalCaptureGB();
+	
 	updateCameraGB();
 	doAutoStopRecord();
-	doAutoStopPushStream();
+
 	if (retCode == NO_ERR)
 	{
 		m_pFillFrameTimer->stop();
@@ -1658,7 +1503,7 @@ void Live::OnOpenScreenShareCB( const int& retCode )
 	updateScreenShareGB();
 	updateMediaFilePlayGB();
 	updateRecordGB();
-	updatePushStreamGB();
+
 	if (retCode != NO_ERR )
 	{
 		if( retCode == 1002 )
@@ -1681,7 +1526,7 @@ void Live::OnCloseScreenShareCB( const int& retCode )
 	updateScreenShareGB();
 	updateMediaFilePlayGB();
 	doAutoStopRecord();
-	doAutoStopPushStream();
+	
 	if (retCode == NO_ERR)
 	{
 		m_pScreenShareRender->update();
@@ -1715,7 +1560,6 @@ void Live::OnOpenPlayMediaFileCB( const int& retCode )
 	updateMediaFilePlayGB();
 	updateScreenShareGB();
 	updateRecordGB();
-	updatePushStreamGB();
 	if (retCode == NO_ERR)
 	{
 		m_pPlayMediaFileTimer->start(1000);
@@ -1739,7 +1583,7 @@ void Live::OnClosePlayMediaFileCB( const int& retCode )
 	updateMediaFilePlayGB();
 	updateScreenShareGB();
 	doAutoStopRecord();
-	doAutoStopPushStream();
+
 	if (retCode == NO_ERR)
 	{
 		m_pPlayMediaFileTimer->stop();
@@ -1805,10 +1649,6 @@ void Live::OnExitInteract()
 	if ( m_ui.btnCloseCamera->isEnabled() )
 	{
 		OnBtnCloseCamera();
-	}
-	if ( m_ui.btnCloseExternalCapture->isEnabled() )
-	{
-		OnBtnCloseExternalCapture();
 	}
 	if ( m_ui.btnCloseMic->isEnabled() )
 	{
@@ -2110,7 +1950,7 @@ void Live::OnStartPushStreamSuc( PushStreamRsp &value, void *data )
 	{
 		pLive->m_pushUrls.push_back(*i);
 	}
-	pLive->updatePushStreamGB();
+
 }
 
 void Live::OnStartPushStreamErr( int code, const char *desc, void* data )
@@ -2124,7 +1964,6 @@ void Live::OnStopPushStreamSuc( void* data )
 	pLive->m_bPushing = false;
 	pLive->m_channelId = 0;
 	pLive->m_pushUrls.clear();
-	pLive->updatePushStreamGB();
 }
 
 void Live::OnStopPushStreamErr( int code, const char *desc, void* data )
