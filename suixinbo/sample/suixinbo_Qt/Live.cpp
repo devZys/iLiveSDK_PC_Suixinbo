@@ -458,12 +458,12 @@ void Live::OnDeviceOperation(E_DeviceOperationType oper, int retCode, void* data
 	}
 	case E_OpenExternalCapture:
 	{
-		pThis->OnOpenExternalCaptureCB(retCode);
+		//pThis->OnOpenExternalCaptureCB(retCode);
 		break;
 	}
 	case E_CloseExternalCapture:
 	{
-		pThis->OnCloseExternalCaptureCB(retCode);
+		//pThis->OnCloseExternalCaptureCB(retCode);
 		break;
 	}
 	case E_OpenMic:
@@ -549,19 +549,28 @@ void Live::OnBtnOpenCamera2()
 
 	if (m_assistVideo != NULL)
 	{
-		delete m_assistVideo;
+		m_assistVideo->release();
 		m_assistVideo = NULL;
 	}
 
 	m_assistVideo = new cv::VideoCapture(ndx);
+
 	if (!m_assistVideo->isOpened())
 	{
 		ShowErrorTips(FromBits("辅助摄像头开启失败."), this);
+
+		m_assistVideo->release();
+		m_assistVideo = NULL;
+
 		return;
+	}
+	else
+	{
+		m_pFillFrameTimer->start(33); // 帧率1000/66约等于15
 	}
 
 
-	m_pFillFrameTimer->start(66); // 帧率1000/66约等于15
+	
 }
 
 void Live::OnBtnCloseCamera()
@@ -572,8 +581,17 @@ void Live::OnBtnCloseCamera()
 
 void Live::OnBtnCloseCamera2()
 {
+	GetILive()->closeScreenShare();
+
 	m_ui.btnCloseCamera_2->setEnabled(false);
 	m_ui.btnOpenCamera_2->setEnabled(true);
+
+
+
+	m_pFillFrameTimer->stop();
+	m_assVideoSetWin = false;
+	DestroyWindow(m_assistHandle);
+	m_assistHandle = NULL;
 }
 
 void Live::OnBtnOpenMic()
@@ -895,25 +913,10 @@ void Live::OnFillFrameTimer()
 
 	cv::imshow(WChar2Ansi(m_assistName), tmpFrame);
 	
-// 	LiveVideoFrame tmpLiveframe;
-// 	tmpLiveframe.data = (uint8*)tmpFrame.data;
-// 	tmpLiveframe.dataSize = tmpFrame.cols * tmpFrame.rows * 3;
-// 	tmpLiveframe.desc.colorFormat = COLOR_FORMAT_RGB24;
-// 	tmpLiveframe.desc.srcType = VIDEO_SRC_TYPE_MEDIA;
-// 	tmpLiveframe.desc.width = tmpFrame.cols;
-// 	tmpLiveframe.desc.height = tmpFrame.rows;
-// 	tmpLiveframe.desc.rotate = 0;
-// 
-// 	reverseRGBFrame(tmpLiveframe);
-// 
-// 	int nRet = GetILive()->fillExternalCaptureFrame(tmpLiveframe);
-
 	if (m_assVideoSetWin == false)
 	{
-// 		cv::namedWindow(WChar2Ansi(m_assistName), CV_WINDOW_NORMAL);
-// 		cv::setWindowProperty(WChar2Ansi(m_assistName), CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
 		int offset = 2;
-		HWND win_handle = FindWindow(0, m_assistName);
+		m_assistHandle = FindWindow(0, m_assistName);
 		// Resize  
 		unsigned int flags = (SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER);
 		flags &= ~SWP_NOSIZE;
@@ -921,11 +924,14 @@ void Live::OnFillFrameTimer()
 		unsigned int y = 0 ;
 		unsigned int w = tmpFrame.cols - offset;
 		unsigned int h = tmpFrame.rows - offset;
-		SetWindowPos(win_handle, HWND_NOTOPMOST, x, y, w, h, flags);
+		SetWindowPos(m_assistHandle, HWND_NOTOPMOST, x, y, w, h, flags);
 
 		// Borderless  
-		SetWindowLong(win_handle, GWL_STYLE, GetWindowLong(win_handle, GWL_EXSTYLE));
-		ShowWindow(win_handle, SW_SHOW);
+		SetWindowLong(m_assistHandle, GWL_STYLE, GetWindowLong(m_assistHandle, GWL_EXSTYLE));
+		ShowWindow(m_assistHandle, SW_SHOW);
+
+
+		GetILive()->openScreenShare(m_assistHandle, m_fps);
 
 		m_assVideoSetWin = true;
 	}

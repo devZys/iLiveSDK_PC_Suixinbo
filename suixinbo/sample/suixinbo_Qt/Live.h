@@ -250,6 +250,8 @@ private:
 	bool m_assVideoSetWin = false;
 
 	const LPCWSTR m_assistName = L"AssistVideo";
+
+	HWND m_assistHandle;
 };
 
 #endif//Live_h_
