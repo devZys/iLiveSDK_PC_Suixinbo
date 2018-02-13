@@ -246,6 +246,10 @@ private:
 
 
 	cv::VideoCapture* m_assistVideo;
+
+	bool m_assVideoSetWin = false;
+
+	const LPCWSTR m_assistName = L"AssistVideo";
 };
 
 #endif//Live_h_

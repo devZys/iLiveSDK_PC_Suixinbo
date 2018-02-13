@@ -869,13 +869,32 @@ void Live::OnHeartBeatTimer()
 	sxbRoomIdList();
 }
 
+
+std::string WChar2Ansi(LPCWSTR pwszSrc)
+{
+	int nLen = WideCharToMultiByte(CP_ACP, 0, pwszSrc, -1, NULL, 0, NULL, NULL);
+
+	if (nLen <= 0) return std::string("");
+
+	char* pszDst = new char[nLen];
+	if (NULL == pszDst) return std::string("");
+
+	WideCharToMultiByte(CP_ACP, 0, pwszSrc, -1, pszDst, nLen, NULL, NULL);
+	pszDst[nLen - 1] = 0;
+
+	std::string strTemp(pszDst);
+	delete[] pszDst;
+
+	return strTemp;
+}
+
 void Live::OnFillFrameTimer()
 {
-// 	cv::Mat tmpFrame;
-// 	(*m_assistVideo) >> tmpFrame;
-// 
-// 	cv::imshow("当前视频", tmpFrame);
-// 	
+	cv::Mat tmpFrame;
+	(*m_assistVideo) >> tmpFrame;
+
+	cv::imshow(WChar2Ansi(m_assistName), tmpFrame);
+	
 // 	LiveVideoFrame tmpLiveframe;
 // 	tmpLiveframe.data = (uint8*)tmpFrame.data;
 // 	tmpLiveframe.dataSize = tmpFrame.cols * tmpFrame.rows * 3;
@@ -889,53 +908,28 @@ void Live::OnFillFrameTimer()
 // 
 // 	int nRet = GetILive()->fillExternalCaptureFrame(tmpLiveframe);
 
-//////////////////////////////////////////////
-//这里演示自定义采集，读取一张本地图片，每一帧都传入此图片作为输入数据
-	HBITMAP hbitmap = (HBITMAP)LoadImageA(NULL, "ExternalCapture.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
-	if (!hbitmap)
+	if (m_assVideoSetWin == false)
 	{
-		return;
+// 		cv::namedWindow(WChar2Ansi(m_assistName), CV_WINDOW_NORMAL);
+// 		cv::setWindowProperty(WChar2Ansi(m_assistName), CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
+		int offset = 2;
+		HWND win_handle = FindWindow(0, m_assistName);
+		// Resize  
+		unsigned int flags = (SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER);
+		flags &= ~SWP_NOSIZE;
+		unsigned int x = 0 ;
+		unsigned int y = 0 ;
+		unsigned int w = tmpFrame.cols - offset;
+		unsigned int h = tmpFrame.rows - offset;
+		SetWindowPos(win_handle, HWND_NOTOPMOST, x, y, w, h, flags);
+
+		// Borderless  
+		SetWindowLong(win_handle, GWL_STYLE, GetWindowLong(win_handle, GWL_EXSTYLE));
+		ShowWindow(win_handle, SW_SHOW);
+
+		m_assVideoSetWin = true;
 	}
-
-	BITMAP bitmap;
-	GetObject(hbitmap, sizeof(BITMAP), &bitmap);
-
-	/////////////////输出文字到图片上start////////////////
-	HDC hDC = GetDC((HWND)(this->winId()));
-	HDC hMemDC = CreateCompatibleDC(hDC);
-	SelectObject(hMemDC, hbitmap);
-
-	char chFont[20];
-	HFONT hfont = CreateFontA(100, 0, 0, 0, 400, 0, 0, 0, GB2312_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, chFont);
-
-	SelectObject(hMemDC, hfont);
-	TextOutA(hMemDC, 0, 0, "这是自定义采集的画面", strlen("这是自定义采集的画面"));
-
-	DeleteObject(hfont);
-	DeleteObject(hMemDC);
-	ReleaseDC((HWND)(this->winId()), hDC);
-	/////////////////输出文字到图片上end////////////////
-
-	LiveVideoFrame frame;
-	frame.data = (uint8*)bitmap.bmBits;
-	frame.dataSize = bitmap.bmWidth * bitmap.bmHeight * 3;
-	frame.desc.colorFormat = COLOR_FORMAT_RGB24;
-	frame.desc.width = bitmap.bmWidth;
-	frame.desc.height = bitmap.bmHeight;
-	frame.desc.rotate = 0;
-	reverseRGBFrame(frame);//由于BMP图片的数据是上下颠倒保存的，这里需要上下翻转下
-
-	int nRet = GetILive()->fillExternalCaptureFrame(frame);
-	if (nRet != NO_ERR)
-	{
-		m_pFillFrameTimer->stop();
-		if (nRet != NO_ERR)
-		{
-			ShowCodeErrorTips(nRet, FromBits("自定义采集视频输入出错"), this);
-		}
-	}
-
-	DeleteObject(hbitmap);
+	
 }
 
 void Live::OnPlayMediaFileTimer()
